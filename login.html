@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<style type="text/css">
+    *{
+        padding:0;
+        margin:0;
+    }
+    .container{
+        background-color:#fffff;
+        padding:20px;
+        width:70%;
+        margin-top:100px;
+        border-radius:10px;
+           border: 2px solid #eee;
+           
+           }
+    h3{
+        padding:10px;
+    }
+    label{
+        padding:10px;
+        display:block;
+    }
+    input[type="email"],[type="password"] {
+        width: 65%;
+        height: 20px;
+        padding: 4px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        margin-bottom:20px;
+    }
+    button[id=submit]{
+        font-size:14px;
+        width:150px;
+        padding:10px;
+        border:none;
+        color:white;
+        border-radius:7px;
+        background-color:#34C759;
+        margin-top:0px;
+    }
+    button:hover{
+    background-color:grey;
+    }
+    
+    p[id="resetPass"]{
+    padding:20px;
+    margin-top:-20px;
+    color:grey;
+    }
+    a{
+        text-decoration:none;
+        color:grey;
+    }
+</style>
+<body>
+    <center>
+    <div class="container">
+  <div class="form">
+    <center>
+      <h3>PickToCart</h3>
+    </center>
+    <h3>Login</h3>
+    <div class="info">
+      <label for="email"><b>Email</b>:</label>
+      <input type="email" id="email" placeholder="Enter Your Email" required>
+      <label><b>Password</b>:</label>
+      <input type="password" id="password" placeholder="Enter Your Password" required>
+      &nbsp;&nbsp;
+      <button id="submit">Login</button>
+    </div>
+    &nbsp;
+  </div>
+</div>
+</center>
+</body>
+<script type="module">
+import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+const supabaseUrl = 'https://wtiqgcsucpcqgyqutcmq.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0aXFnY3N1Y3BjcWd5cXV0Y21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MzMzNDYsImV4cCI6MjA2MjAwOTM0Nn0.MtXBQ9qXTPwWEBh8l5jYh_zDYKkYyiUc2WwaA5wrtpE';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+
+document.getElementById("submit").addEventListener("click", async function(event) {
+  event.preventDefault();
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if (email.indexOf("@") === -1 || email.indexOf(".com") === -1) {
+    alert("Enter a valid email");
+    return;
+  }
+
+  if (password === "") {
+    alert("Please enter your password");
+    return;
+  }
+
+try {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    alert(error.message);
+  } else {
+    const user = data.user;
+    const session = data.session;
+    console.log("User:", JSON.stringify(user , null ,2));
+    console.log("Session:", JSON.stringify(session ,null ,2));
+    alert("Login Successful");
+    localStorage.setItem('supabaseSession', JSON.stringify(session));
+    window.location.href = "dashboard.html"; 
+  }
+} catch (error) {
+  console.error(error);
+}
+});
+</script>
+
+
+</html>
