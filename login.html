@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | PickToCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .login-container {
+            display: flex;
+            width: 900px;
+            height: 550px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .login-sidebar {
+            flex: 1;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-sidebar h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .login-sidebar p {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            list-style: none;
+            margin-top: 20px;
+        }
+        
+        .features li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .features i {
+            margin-right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .login-form {
+            flex: 1;
+            background: white;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo h2 {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .logo p {
+            color: #7f8c8d;
+            font-size: 15px;
+            margin-top: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: #fdfdfd;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            background: white;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .submit-btn:hover {
+            background: #34495e;
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .admin-note {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #7f8c8d;
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        
+        .admin-note i {
+            margin-right: 8px;
+            color: #3498db;
+        }
+        
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                width: 95%;
+                height: auto;
+            }
+            
+            .login-sidebar, .login-form {
+                padding: 40px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-sidebar">
+            <h1>Admin Portal</h1>
+            <p>Access the backend management system for PickToCart. Manage products, orders, customers, and analytics.</p>
+            
+            <ul class="features">
+                <li><i class="fas fa-chart-line"></i> View sales analytics and reports</li>
+                <li><i class="fas fa-box"></i> Manage product inventory</li>
+                <li><i class="fas fa-shopping-cart"></i> Process and track orders</li>
+                <li><i class="fas fa-users"></i> Manage customer accounts</li>
+                <li><i class="fas fa-cog"></i> Configure system settings</li>
+            </ul>
+        </div>
+        
+        <div class="login-form">
+            <div class="logo">
+                <h2>PickToCart</h2>
+                <p>Administrator Login</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="admin@example.com" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn" id="submit">
+                    <i class="fas fa-sign-in-alt"></i> Login to Dashboard
+                </button>
+            </form>
+            
+            <div class="admin-note">
+                <i class="fas fa-shield-alt"></i> Secure admin access only. Unauthorized attempts will be logged.
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+        
+        const supabaseUrl = 'https://wtiqgcsucpcqgyqutcmq.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0aXFnY3N1Y3BjcWd5cXV0Y21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MzMzNDYsImV4cCI6MjA2MjAwOTM0Nn0.MtXBQ9qXTPwWEBh8l5jYh_zDYKkYyiUc2WwaA5wrtpE';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById("loginForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById("submit");
+            const originalText = submitBtn.innerHTML;
+            
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Simple validation
+            if (email.indexOf("@") === -1 || email.indexOf(".") === -1) {
+                alert("Please enter a valid admin email address");
+                return;
+            }
+
+            if (password === "") {
+                alert("Please enter your password");
+                return;
+            }
+
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            submitBtn.disabled = true;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+
+                if (error) {
+                    alert("Authentication failed: " + error.message);
+                } else {
+                    // Success
+                    submitBtn.innerHTML = '<i class="fas fa-check"></i> Login Successful!';
+                    submitBtn.style.background = "#27ae60";
+                    
+                    setTimeout(() => {
+                        const user = data.user;
+                        const session = data.session;
+                        console.log("Admin User:", JSON.stringify(user, null, 2));
+                        localStorage.setItem('supabaseSession', JSON.stringify(session));
+                        window.location.href = "dashboard.html"; 
+                    }, 1000);
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                alert("An unexpected error occurred. Please try again.");
+            } finally {
+                // Reset button if there was an error
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    submitBtn.style.background = "";
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>
