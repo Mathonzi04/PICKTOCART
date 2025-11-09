@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Review Management | TECHSpec Check</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2A9D8F;
+            --primary-dark: #1a936f;
+            --secondary: #E9C46A;
+            --accent: #E76F51;
+            --dark: #264653;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            color: var(--primary);
+        }
+        
+        .admin-nav {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .admin-nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .admin-nav a:hover, .admin-nav a.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .admin-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+            color: var(--dark);
+        }
+        
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .stat-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card.total i { color: var(--primary); }
+        .stat-card.pending i { color: var(--warning); }
+        .stat-card.replied i { color: var(--success); }
+        .stat-card.low-rating i { color: var(--danger); }
+        
+        .stat-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .search-box input {
+            flex: 1;
+        }
+        
+        .search-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .review-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .reviewer-details h4 {
+            font-size: 1rem;
+            color: var(--dark);
+        }
+        
+        .review-product {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+        
+        .review-date {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .review-rating {
+            color: #fbbf24;
+            font-size: 1rem;
+        }
+        
+        .review-content {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            color: #4b5563;
+        }
+        
+        .review-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-reply {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-delete {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-edit {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+        
+        .admin-reply {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e5e7eb;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .admin-reply-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        
+        .admin-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .reply-form {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .reply-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 1rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+            gap: 10px;
+        }
+        
+        .pagination button {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .pagination button.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .pagination button:hover:not(.active) {
+            background: #f0f0f0;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            z-index: 1001;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .toast.error {
+            background-color: var(--danger);
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .admin-nav {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .review-actions {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <h1>TECHSpec <span>Check</span> Admin</h1>
+        </div>
+        
+        <div class="admin-nav">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="ad-change.html">Ads</a>
+            <a href="admin-reviews.html" class="active">Reviews</a>
+            <a href="#">Products</a>
+            <a href="#">Orders</a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="admin-container">
+        <div class="page-header">
+            <h1>Customer Reviews Management</h1>
+            <button class="btn btn-reply" id="refresh-btn">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-cards">
+            <div class="stat-card total">
+                <i class="fas fa-comments"></i>
+                <h3 id="total-reviews">0</h3>
+                <p>Total Reviews</p>
+            </div>
+            <div class="stat-card pending">
+                <i class="fas fa-clock"></i>
+                <h3 id="pending-replies">0</h3>
+                <p>Pending Replies</p>
+            </div>
+            <div class="stat-card replied">
+                <i class="fas fa-reply"></i>
+                <h3 id="replied-reviews">0</h3>
+                <p>Replied Reviews</p>
+            </div>
+            <div class="stat-card low-rating">
+                <i class="fas fa-star-half-alt"></i>
+                <h3 id="low-ratings">0</h3>
+                <p>Low Ratings (1-2 stars)</p>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label for="product-filter">Product</label>
+                    <select id="product-filter">
+                        <option value="">All Products</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="rating-filter">Rating</label>
+                    <select id="rating-filter">
+                        <option value="">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4 Stars</option>
+                        <option value="3">3 Stars</option>
+                        <option value="2">2 Stars</option>
+                        <option value="1">1 Star</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="status-filter">Reply Status</label>
+                    <select id="status-filter">
+                        <option value="">All</option>
+                        <option value="replied">Replied</option>
+                        <option value="pending">Pending Reply</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="date-filter">Date</label>
+                    <select id="date-filter">
+                        <option value="">All Time</option>
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-row" style="margin-top: 15px;">
+                <div class="filter-group">
+                    <label for="search-input">Search</label>
+                    <div class="search-box">
+                        <input type="text" id="search-input" placeholder="Search reviews...">
+                        <button class="search-btn" id="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reviews List -->
+        <div class="reviews-list" id="reviews-list">
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading reviews...
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="pagination" id="pagination" style="display: none;">
+            <button id="prev-page"><i class="fas fa-chevron-left"></i> Previous</button>
+            <div id="page-numbers"></div>
+            <button id="next-page">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+        
+        const supabaseUrl = 'https://wtiqgcsucpcqgyqutcmq.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0aXFnY3N1Y3BjcWd5cXV0Y21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MzMzNDYsImV4cCI6MjA2MjAwOTM0Nn0.MtXBQ9qXTPwWEBh8l5jYh_zDYKkYyiUc2WwaA5wrtpE';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Global variables
+        let allReviews = [];
+        let filteredReviews = [];
+        let currentPage = 1;
+        const reviewsPerPage = 10;
+        let productFilter = '';
+        let ratingFilter = '';
+        let statusFilter = '';
+        let dateFilter = '';
+        let searchQuery = '';
+        
+        // DOM Elements
+        const reviewsList = document.getElementById('reviews-list');
+        const loadingElement = document.getElementById('loading');
+        const paginationElement = document.getElementById('pagination');
+        const toastElement = document.getElementById('toast');
+        
+        // Function to show toast notification
+        function showToast(message, type = 'success') {
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            toastElement.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+            toastElement.className = `toast ${type === 'error' ? 'error' : ''}`;
+            toastElement.classList.add('show');
+            setTimeout(() => {
+                toastElement.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Function to generate star rating HTML
+        function generateStarRating(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else {
+                    stars += '<i class="far fa-star"></i>';
+                }
+            }
+            return stars;
+        }
+        
+        // Function to format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Function to get product name from reference
+        async function getProductName(reference) {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('name')
+                    .eq('reference', reference)
+                    .single();
+                
+                if (error) throw error;
+                return data ? data.name : 'Unknown Product';
+            } catch (error) {
+                console.error('Error fetching product name:', error);
+                return 'Unknown Product';
+            }
+        }
+        
+        // Function to load all reviews
+        async function loadReviews() {
+            try {
+                loadingElement.style.display = 'block';
+                reviewsList.innerHTML = '';
+                reviewsList.appendChild(loadingElement);
+                
+                // Fetch reviews with replies
+                const { data: reviews, error } = await supabase
+                    .from('reviews')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                // Fetch all replies
+                const { data: replies, error: repliesError } = await supabase
+                    .from('review_replies')
+                    .select('*');
+                
+                if (repliesError) throw repliesError;
+                
+                // Combine reviews with their replies
+                allReviews = reviews.map(review => {
+                    const reviewReplies = replies.filter(reply => reply.review_id === review.id);
+                    return {
+                        ...review,
+                        replies: reviewReplies
+                    };
+                });
+                
+                // Update stats
+                updateStats(allReviews);
+                
+                // Apply filters
+                applyFilters();
+                
+                // Display reviews
+                displayReviews();
+                
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                reviewsList.innerHTML = `
+                    <div class="no-reviews">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3>Error Loading Reviews</h3>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Function to update statistics
+        function updateStats(reviews) {
+            const totalReviews = reviews.length;
+            const pendingReplies = reviews.filter(review => review.replies.length === 0).length;
+            const repliedReviews = totalReviews - pendingReplies;
+            const lowRatings = reviews.filter(review => review.rating <= 2).length;
+            
+            document.getElementById('total-reviews').textContent = totalReviews;
+            document.getElementById('pending-replies').textContent = pendingReplies;
+            document.getElementById('replied-reviews').textContent = repliedReviews;
+            document.getElementById('low-ratings').textContent = lowRatings;
+        }
+        
+        // Function to apply filters
+        function applyFilters() {
+            filteredReviews = [...allReviews];
+            
+            // Apply product filter
+            if (productFilter) {
+                filteredReviews = filteredReviews.filter(review => 
+                    review.product_reference === productFilter
+                );
+            }
+            
+            // Apply rating filter
+            if (ratingFilter) {
+                filteredReviews = filteredReviews.filter(review => 
+                    review.rating === parseInt(ratingFilter)
+                );
+            }
+            
+            // Apply status filter
+            if (statusFilter === 'replied') {
+                filteredReviews = filteredReviews.filter(review => 
+                    review.replies.length > 0
+                );
+            } else if (statusFilter === 'pending') {
+                filteredReviews = filteredReviews.filter(review => 
+                    review.replies.length === 0
+                );
+            }
+            
+            // Apply date filter
+            if (dateFilter) {
+                const now = new Date();
+                let startDate;
+                
+                if (dateFilter === 'today') {
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                } else if (dateFilter === 'week') {
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                } else if (dateFilter === 'month') {
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                }
+                
+                if (startDate) {
+                    filteredReviews = filteredReviews.filter(review => 
+                        new Date(review.created_at) >= startDate
+                    );
+                }
+            }
+            
+            // Apply search query
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase();
+                filteredReviews = filteredReviews.filter(review => 
+                    review.comment.toLowerCase().includes(query) ||
+                    review.user_email.toLowerCase().includes(query) ||
+                    review.product_reference.toLowerCase().includes(query)
+                );
+            }
+            
+            // Reset to first page when filters change
+            currentPage = 1;
+        }
+        
+        // Function to display reviews
+        async function displayReviews() {
+            loadingElement.style.display = 'none';
+            
+            if (filteredReviews.length === 0) {
+                reviewsList.innerHTML = `
+                    <div class="no-reviews">
+                        <i class="far fa-comment-alt" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <h3>No Reviews Found</h3>
+                        <p>No reviews match your current filters.</p>
+                    </div>
+                `;
+                paginationElement.style.display = 'none';
+                return;
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredReviews.length / reviewsPerPage);
+            const startIndex = (currentPage - 1) * reviewsPerPage;
+            const endIndex = startIndex + reviewsPerPage;
+            const pageReviews = filteredReviews.slice(startIndex, endIndex);
+            
+            // Display reviews
+            reviewsList.innerHTML = '';
+            
+            for (const review of pageReviews) {
+                const productName = await getProductName(review.product_reference);
+                const emailInitial = review.user_email.charAt(0).toUpperCase();
+                
+                const reviewElement = document.createElement('div');
+                reviewElement.className = 'review-item';
+                reviewElement.id = `review-${review.id}`;
+                
+                reviewElement.innerHTML = `
+                    <div class="review-header">
+                        <div class="reviewer-info">
+                            <div class="reviewer-avatar">${emailInitial}</div>
+                            <div class="reviewer-details">
+                                <h4>${review.user_email}</h4>
+                                <div class="review-product">${productName} (Ref: ${review.product_reference})</div>
+                                <div class="review-date">${formatDate(review.created_at)}</div>
+                            </div>
+                        </div>
+                        <div class="review-rating">
+                            ${generateStarRating(review.rating)}
+                        </div>
+                    </div>
+                    <div class="review-content">
+                        ${review.comment}
+                    </div>
+                    ${review.replies.length > 0 ? 
+                        review.replies.map(reply => `
+                            <div class="admin-reply">
+                                <div class="admin-reply-header">
+                                    <span class="admin-badge">Admin Reply</span>
+                                    <span class="review-date">${formatDate(reply.created_at)}</span>
+                                </div>
+                                <div class="review-content">
+                                    ${reply.reply}
+                                </div>
+                                <div class="review-actions">
+                                    <button class="btn btn-edit edit-reply-btn" data-reply-id="${reply.id}">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-delete delete-reply-btn" data-reply-id="${reply.id}">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') : ''}
+                    <div class="review-actions">
+                        <button class="btn btn-reply reply-btn" data-review-id="${review.id}">
+                            <i class="fas fa-reply"></i> ${review.replies.length > 0 ? 'Edit Reply' : 'Reply'}
+                        </button>
+                        <button class="btn btn-delete delete-review-btn" data-review-id="${review.id}">
+                            <i class="fas fa-trash"></i> Delete Review
+                        </button>
+                    </div>
+                    <div class="reply-form" id="reply-form-${review.id}">
+                        <h4>${review.replies.length > 0 ? 'Edit' : 'Add'} Admin Reply</h4>
+                        <form class="reply-form-content" data-review-id="${review.id}">
+                            <div class="form-group">
+                                <textarea placeholder="Write your reply..." required>${review.replies.length > 0 ? review.replies[0].reply : ''}</textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn cancel-reply">Cancel</button>
+                                <button type="submit" class="btn btn-reply">${review.replies.length > 0 ? 'Update Reply' : 'Submit Reply'}</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                
+                reviewsList.appendChild(reviewElement);
+            }
+            
+            // Setup pagination
+            setupPagination(totalPages);
+        }
+        
+        // Function to setup pagination
+        function setupPagination(totalPages) {
+            if (totalPages <= 1) {
+                paginationElement.style.display = 'none';
+                return;
+            }
+            
+            paginationElement.style.display = 'flex';
+            const pageNumbersElement = document.getElementById('page-numbers');
+            pageNumbersElement.innerHTML = '';
+            
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                pageButton.className = i === currentPage ? 'active' : '';
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    displayReviews();
+                });
+                pageNumbersElement.appendChild(pageButton);
+            }
+            
+            document.getElementById('prev-page').disabled = currentPage === 1;
+            document.getElementById('next-page').disabled = currentPage === totalPages;
+            
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayReviews();
+                }
+            });
+            
+            document.getElementById('next-page').addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayReviews();
+                }
+            });
+        }
+        
+        // Function to load product filter options
+        async function loadProductFilter() {
+            try {
+                const { data, error } = await supabase
+                    .from('products')
+                    .select('reference, name')
+                    .order('name');
+                
+                if (error) throw error;
+                
+                const productFilterElement = document.getElementById('product-filter');
+                productFilterElement.innerHTML = '<option value="">All Products</option>';
+                
+                data.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.reference;
+                    option.textContent = product.name;
+                    productFilterElement.appendChild(option);
+                });
+                
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+        
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data
+            loadProductFilter();
+            loadReviews();
+            
+            // Refresh button
+            document.getElementById('refresh-btn').addEventListener('click', loadReviews);
+            
+            // Filter change events
+            document.getElementById('product-filter').addEventListener('change', function() {
+                productFilter = this.value;
+                applyFilters();
+                displayReviews();
+            });
+            
+            document.getElementById('rating-filter').addEventListener('change', function() {
+                ratingFilter = this.value;
+                applyFilters();
+                displayReviews();
+            });
+            
+            document.getElementById('status-filter').addEventListener('change', function() {
+                statusFilter = this.value;
+                applyFilters();
+                displayReviews();
+            });
+            
+            document.getElementById('date-filter').addEventListener('change', function() {
+                dateFilter = this.value;
+                applyFilters();
+                displayReviews();
+            });
+            
+            // Search functionality
+            document.getElementById('search-btn').addEventListener('click', function() {
+                searchQuery = document.getElementById('search-input').value;
+                applyFilters();
+                displayReviews();
+            });
+            
+            document.getElementById('search-input').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    searchQuery = this.value;
+                    applyFilters();
+                    displayReviews();
+                }
+            });
+            
+            // Event delegation for dynamic elements
+            reviewsList.addEventListener('click', function(e) {
+                // Reply button
+                if (e.target.closest('.reply-btn')) {
+                    const reviewId = e.target.closest('.reply-btn').getAttribute('data-review-id');
+                    document.getElementById(`reply-form-${reviewId}`).classList.toggle('active');
+                }
+                
+                // Cancel reply button
+                if (e.target.closest('.cancel-reply')) {
+                    const form = e.target.closest('.reply-form');
+                    form.classList.remove('active');
+                }
+                
+                // Submit reply form
+                if (e.target.closest('.reply-form-content')) {
+                    e.preventDefault();
+                    const form = e.target.closest('.reply-form-content');
+                    const reviewId = form.getAttribute('data-review-id');
+                    const replyText = form.querySelector('textarea').value;
+                    
+                    if (!replyText.trim()) {
+                        showToast('Please write a reply', 'error');
+                        return;
+                    }
+                    
+                    submitReply(reviewId, replyText);
+                }
+                
+                // Delete review button
+                if (e.target.closest('.delete-review-btn')) {
+                    const reviewId = e.target.closest('.delete-review-btn').getAttribute('data-review-id');
+                    if (confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                        deleteReview(reviewId);
+                    }
+                }
+                
+                // Delete reply button
+                if (e.target.closest('.delete-reply-btn')) {
+                    const replyId = e.target.closest('.delete-reply-btn').getAttribute('data-reply-id');
+                    if (confirm('Are you sure you want to delete this reply?')) {
+                        deleteReply(replyId);
+                    }
+                }
+            });
+        });
+        
+        // Function to submit a reply
+        async function submitReply(reviewId, replyText) {
+            try {
+                // Check if there's already a reply
+                const review = allReviews.find(r => r.id == reviewId);
+                const existingReply = review.replies.length > 0 ? review.replies[0] : null;
+                
+                if (existingReply) {
+                    // Update existing reply
+                    const { data, error } = await supabase
+                        .from('review_replies')
+                        .update({ reply: replyText, updated_at: new Date().toISOString() })
+                        .eq('id', existingReply.id);
+                    
+                    if (error) throw error;
+                    showToast('Reply updated successfully!');
+                } else {
+                    // Create new reply
+                    const { data, error } = await supabase
+                        .from('review_replies')
+                        .insert([
+                            {
+                                review_id: reviewId,
+                                reply: replyText
+                            }
+                        ]);
+                    
+                    if (error) throw error;
+                    showToast('Reply submitted successfully!');
+                }
+                
+                // Reload reviews
+                loadReviews();
+                
+            } catch (error) {
+                console.error('Error submitting reply:', error);
+                showToast('Error submitting reply. Please try again.', 'error');
+            }
+        }
+        
+        // Function to delete a review
+        async function deleteReview(reviewId) {
+            try {
+                const { data, error } = await supabase
+                    .from('reviews')
+                    .delete()
+                    .eq('id', reviewId);
+                
+                if (error) throw error;
+                
+                showToast('Review deleted successfully!');
+                loadReviews();
+                
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                showToast('Error deleting review. Please try again.', 'error');
+            }
+        }
+        
+        // Function to delete a reply
+        async function deleteReply(replyId) {
+            try {
+                const { data, error } = await supabase
+                    .from('review_replies')
+                    .delete()
+                    .eq('id', replyId);
+                
+                if (error) throw error;
+                
+                showToast('Reply deleted successfully!');
+                loadReviews();
+                
+            } catch (error) {
+                console.error('Error deleting reply:', error);
+                showToast('Error deleting reply. Please try again.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
