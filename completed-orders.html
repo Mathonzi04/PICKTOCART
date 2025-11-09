@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completed Orders - PickToCart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #4cc9a7;
+            --warning: #f9c74f;
+            --danger: #f94144;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            padding: 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h4 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header h4 i {
+            color: var(--secondary);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .logout-btn:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            padding: 30px;
+            flex: 1;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--success);
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--success);
+        }
+        
+        /* Search Bar */
+        .search-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+        }
+        
+        .search-box {
+            position: relative;
+            max-width: 500px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: var(--transition);
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        /* Orders Table */
+        .orders-table-container {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            margin-bottom: 20px;
+        }
+        
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+        }
+        
+        .table-header h3 {
+            color: var(--dark);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 18px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+        
+        .back-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Action buttons */
+        .action-btn {
+            padding: 8px 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .download-btn {
+            padding: 8px 14px;
+            background: var(--info);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        
+        .download-btn:hover {
+            background: #3a7bd5;
+            transform: translateY(-2px);
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .toast.error {
+            background-color: var(--danger);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Receipt Template Styles */
+        .receipt-template {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1002;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .receipt-header h2 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .receipt-details {
+            margin-bottom: 20px;
+        }
+        
+        .receipt-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .receipt-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .receipt-value {
+            color: var(--dark);
+            text-align: right;
+        }
+        
+        .receipt-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .receipt-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        .receipt-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        
+        .download-pdf {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .download-pdf:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .download-image {
+            background: var(--success);
+            color: white;
+        }
+        
+        .download-image:hover {
+            background: #3da58a;
+            transform: translateY(-2px);
+        }
+        
+        .close-receipt {
+            background: var(--gray);
+            color: white;
+        }
+        
+        .close-receipt:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .receipt-template {
+                width: 90%;
+                max-width: 350px;
+            }
+            
+            .receipt-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Receipt Template -->
+    <div class="overlay" id="receipt-overlay"></div>
+    <div class="receipt-template" id="receipt-template">
+        <div class="receipt-header">
+            <h2><i class="fas fa-shopping-bag"></i> PickToCart</h2>
+            <p>Order Receipt</p>
+        </div>
+        <div class="receipt-details">
+            <div class="receipt-row">
+                <span class="receipt-label">Reference No.</span>
+                <span class="receipt-value" id="receipt-ref">REF12345</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Customer Name</span>
+                <span class="receipt-value" id="receipt-customer">John Doe</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">PEP Store</span>
+                <span class="receipt-value" id="receipt-store">Store 123</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Order Details</span>
+                <span class="receipt-value" id="receipt-details">Product XYZ</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Status</span>
+                <span class="receipt-value">
+                    <span class="receipt-status" id="receipt-status">Completed</span>
+                </span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Order Date</span>
+                <span class="receipt-value" id="receipt-date">2025-01-01</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Completed Date</span>
+                <span class="receipt-value" id="receipt-completed">2025-01-01</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Order Approved</span>
+                <span class="receipt-value" id="receipt-approved">N/A</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Ready for Delivery</span>
+                <span class="receipt-value" id="receipt-ready">N/A</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">On Delivery</span>
+                <span class="receipt-value" id="receipt-delivery">N/A</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Reached Destination</span>
+                <span class="receipt-value" id="receipt-destination">N/A</span>
+            </div>
+            <div class="receipt-row">
+                <span class="receipt-label">Pickup Message</span>
+                <span class="receipt-value" id="receipt-message">N/A</span>
+            </div>
+        </div>
+        <div class="receipt-actions">
+            <button class="receipt-btn download-pdf" id="download-pdf-btn">
+                <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button class="receipt-btn download-image" id="download-image-btn">
+                <i class="fas fa-image"></i> Image
+            </button>
+            <button class="receipt-btn close-receipt" id="close-receipt-btn">
+                <i class="fas fa-times"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast"></div>
+
+    <div class="header">
+        <h4><i class="fas fa-check-circle"></i> PickToCart - Completed Orders</h4>
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span id="user-email">Loading...</span>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <a href="dashboard.html" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
+        <div class="loading" id="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <h1 class="section-title"><i class="fas fa-trophy"></i> Completed Orders</h1>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search completed orders...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+            
+            <div class="orders-table-container">
+                <div class="table-header">
+                    <h3><i class="fas fa-list"></i> Completed Orders List</h3>
+                    <span id="order-count">0 orders found</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Reference No.</th>
+                            <th>Customer Name</th>
+                            <th>PEP Store</th>
+                            <th>Order Details</th>
+                            <th>Total Amount</th>
+                            <th>Completed Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="completed-orders-body">
+                        <!-- Completed orders will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+        
+        const supabaseUrl = 'https://wtiqgcsucpcqgyqutcmq.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0aXFnY3N1Y3BjcWd5cXV0Y21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MzMzNDYsImV4cCI6MjA2MjAwOTM0Nn0.MtXBQ9qXTPwWEBh8l5jYh_zDYKkYyiUc2WwaA5wrtpE';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Global variables
+        let currentOrderForDownload = null;
+        let allCompletedOrders = [];
+        
+        // Authentication check
+        async function checkAuth() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error || !user) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return user;
+        }
+        
+        // Function to show toast notification
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = isError ? 'toast error' : 'toast';
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 4000);
+        }
+        
+        // Function to format date
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+        
+        // Function to show receipt for download
+        async function showReceipt(orderId) {
+            try {
+                // Fetch package tracking data
+                const { data: trackingData, error: trackingError } = await supabase
+                    .from('package_tracking')
+                    .select('*')
+                    .eq('id', orderId)
+                    .single();
+                
+                if (trackingError) throw trackingError;
+                
+                // Fetch customer order data
+                const { data: customerOrderData, error: customerOrderError } = await supabase
+                    .from('customer_orders')
+                    .select('*')
+                    .or(`id.eq.${trackingData.reference_number},reference_number.eq.${trackingData.reference_number}`)
+                    .single();
+                
+                // Combine the data
+                const combinedData = {
+                    ...trackingData,
+                    items: customerOrderData ? customerOrderData.items : [],
+                    total: customerOrderData ? customerOrderData.total : 0,
+                    order_date: customerOrderData ? customerOrderData.refer_date : trackingData.created_at
+                };
+                
+                // Store the current order for download
+                currentOrderForDownload = combinedData;
+                
+                // Calculate total for display
+                let totalAmount = 0;
+                if (combinedData.items && Array.isArray(combinedData.items)) {
+                    totalAmount = combinedData.items.reduce((sum, item) => {
+                        let price = 0;
+                        if (item.price) {
+                            price = typeof item.price === 'string' ? parseFloat(item.price) : Number(item.price);
+                        }
+                        if (isNaN(price)) price = 0;
+                        return sum + (price * (item.quantity || 1));
+                    }, 0);
+                } else if (combinedData.total) {
+                    totalAmount = typeof combinedData.total === 'string' ? parseFloat(combinedData.total) : Number(combinedData.total);
+                }
+                if (isNaN(totalAmount)) totalAmount = 0;
+                
+                // Format order details for display
+                const orderDetails = combinedData.items && Array.isArray(combinedData.items) && combinedData.items.length > 0 
+                    ? combinedData.items.map(item => `${item.name || 'Unknown Item'} (Qty: ${item.quantity || 1}) - R${(item.price || 0).toFixed(2)}`).join(', ')
+                    : (combinedData.order_details || 'No details');
+                
+                // Populate receipt template
+                document.getElementById('receipt-ref').textContent = combinedData.reference_number;
+                document.getElementById('receipt-customer').textContent = `${combinedData.customer_first_name} ${combinedData.customer_last_name}`;
+                document.getElementById('receipt-store').textContent = combinedData.pep_store_code;
+                document.getElementById('receipt-details').textContent = orderDetails + ` | Total: R${totalAmount.toFixed(2)}`;
+                
+                const statusElement = document.getElementById('receipt-status');
+                statusElement.textContent = 'Completed';
+                statusElement.className = 'receipt-status status-completed';
+                
+                document.getElementById('receipt-date').textContent = formatDate(combinedData.order_date);
+                document.getElementById('receipt-completed').textContent = formatDate(combinedData.status_update_date);
+                document.getElementById('receipt-approved').textContent = formatDate(combinedData.order_approved_date);
+                document.getElementById('receipt-ready').textContent = formatDate(combinedData.ready_for_delivery_date);
+                document.getElementById('receipt-delivery').textContent = formatDate(combinedData.on_delivery_time);
+                document.getElementById('receipt-destination').textContent = formatDate(combinedData.reached_destination_time);
+                document.getElementById('receipt-message').textContent = combinedData.order_picked_message || 'N/A';
+                
+                // Show receipt template
+                document.getElementById('receipt-template').style.display = 'block';
+                document.getElementById('receipt-overlay').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error loading order details', true);
+            }
+        }
+        
+        // Function to download receipt as PDF
+        function downloadReceiptAsPDF() {
+            if (!currentOrderForDownload) return;
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(67, 97, 238);
+            doc.text('PickToCart', 105, 20, { align: 'center' });
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Order Receipt', 105, 30, { align: 'center' });
+            
+            // Add order details
+            doc.setFontSize(12);
+            let yPosition = 50;
+            
+            // Calculate total for PDF
+            let totalAmount = 0;
+            if (currentOrderForDownload.items && Array.isArray(currentOrderForDownload.items)) {
+                totalAmount = currentOrderForDownload.items.reduce((sum, item) => {
+                    let price = 0;
+                    if (item.price) {
+                        price = typeof item.price === 'string' ? parseFloat(item.price) : Number(item.price);
+                    }
+                    if (isNaN(price)) price = 0;
+                    return sum + (price * (item.quantity || 1));
+                }, 0);
+            } else if (currentOrderForDownload.total) {
+                totalAmount = typeof currentOrderForDownload.total === 'string' ? parseFloat(currentOrderForDownload.total) : Number(currentOrderForDownload.total);
+            }
+            if (isNaN(totalAmount)) totalAmount = 0;
+            
+            doc.text(`Reference No.: ${currentOrderForDownload.reference_number}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Customer Name: ${currentOrderForDownload.customer_first_name} ${currentOrderForDownload.customer_last_name}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`PEP Store: ${currentOrderForDownload.pep_store_code}`, 20, yPosition);
+            yPosition += 10;
+            
+            // Add order items
+            doc.text('Order Items:', 20, yPosition);
+            yPosition += 10;
+            
+            if (currentOrderForDownload.items && Array.isArray(currentOrderForDownload.items)) {
+                currentOrderForDownload.items.forEach(item => {
+                    // Safely handle price
+                    let price = 0;
+                    if (item.price) {
+                        price = typeof item.price === 'string' ? parseFloat(item.price) : Number(item.price);
+                    }
+                    if (isNaN(price)) price = 0;
+                    
+                    const itemText = `- ${item.name || 'Unknown'} (Qty: ${item.quantity || 1}) - R${price.toFixed(2)}`;
+                    // Check if we need a new page
+                    if (yPosition > 270) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+                    doc.text(itemText, 25, yPosition);
+                    yPosition += 8;
+                });
+            } else {
+                doc.text('- No items found', 25, yPosition);
+                yPosition += 8;
+            }
+            
+            // Add total
+            doc.text(`Total: R${totalAmount.toFixed(2)}`, 20, yPosition);
+            yPosition += 10;
+            
+            doc.text(`Status: Completed`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Order Date: ${formatDate(currentOrderForDownload.order_date)}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Completed Date: ${formatDate(currentOrderForDownload.status_update_date)}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Order Approved: ${formatDate(currentOrderForDownload.order_approved_date)}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Ready for Delivery: ${formatDate(currentOrderForDownload.ready_for_delivery_date)}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`On Delivery: ${formatDate(currentOrderForDownload.on_delivery_time)}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Reached Destination: ${formatDate(currentOrderForDownload.reached_destination_time)}`, 20, yPosition);
+            yPosition += 10;
+            doc.text(`Pickup Message: ${currentOrderForDownload.order_picked_message || 'N/A'}`, 20, yPosition);
+            
+            // Add footer
+            doc.setFontSize(10);
+            doc.setTextColor(128, 128, 128);
+            doc.text('Generated by PickToCart Admin Panel', 105, 280, { align: 'center' });
+            
+            // Save the PDF
+            doc.save(`order-${currentOrderForDownload.reference_number}.pdf`);
+            showToast('PDF downloaded successfully');
+        }
+        
+        // Function to download receipt as image
+        function downloadReceiptAsImage() {
+            if (!currentOrderForDownload) return;
+            
+            const receiptElement = document.getElementById('receipt-template');
+            
+            html2canvas(receiptElement).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `order-${currentOrderForDownload.reference_number}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast('Image downloaded successfully');
+            });
+        }
+        
+        // Function to close receipt
+        function closeReceipt() {
+            document.getElementById('receipt-template').style.display = 'none';
+            document.getElementById('receipt-overlay').style.display = 'none';
+            currentOrderForDownload = null;
+        }
+        
+        // Function to filter orders based on search
+        function filterOrders(searchTerm) {
+            const filteredOrders = allCompletedOrders.filter(order => {
+                const searchText = searchTerm.toLowerCase();
+                return (
+                    order.reference_number.toLowerCase().includes(searchText) ||
+                    `${order.customer_first_name} ${order.customer_last_name}`.toLowerCase().includes(searchText) ||
+                    order.pep_store_code.toLowerCase().includes(searchText) ||
+                    (order.order_details && order.order_details.toLowerCase().includes(searchText))
+                );
+            });
+            
+            renderOrdersTable(filteredOrders);
+        }
+        
+        // Function to render orders table
+        function renderOrdersTable(orders) {
+            const tableBody = document.getElementById('completed-orders-body');
+            const orderCount = document.getElementById('order-count');
+            
+            tableBody.innerHTML = '';
+            orderCount.textContent = `${orders.length} orders found`;
+            
+            if (orders.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 20px;">No completed orders found</td></tr>';
+                return;
+            }
+            
+            orders.forEach(order => {
+                // Calculate total from items if available
+                let totalAmount = 0;
+                if (order.items && Array.isArray(order.items)) {
+                    totalAmount = order.items.reduce((sum, item) => {
+                        let price = 0;
+                        if (item.price) {
+                            price = typeof item.price === 'string' ? parseFloat(item.price) : Number(item.price);
+                        }
+                        if (isNaN(price)) price = 0;
+                        return sum + (price * (item.quantity || 1));
+                    }, 0);
+                } else if (order.total) {
+                    totalAmount = typeof order.total === 'string' ? parseFloat(order.total) : Number(order.total);
+                }
+                if (isNaN(totalAmount)) totalAmount = 0;
+                
+                // Format order details
+                const orderDetails = order.items && Array.isArray(order.items) && order.items.length > 0 
+                    ? order.items.map(item => `${item.name || 'Unknown Item'} (Qty: ${item.quantity || 1})`).join(', ')
+                    : (order.order_details || 'No details');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.reference_number}</td>
+                    <td>${order.customer_first_name} ${order.customer_last_name}</td>
+                    <td>${order.pep_store_code}</td>
+                    <td>${orderDetails}</td>
+                    <td>R${totalAmount.toFixed(2)}</td>
+                    <td>${formatDate(order.status_update_date)}</td>
+                    <td><span class="status-badge status-completed">Completed</span></td>
+                    <td>
+                        <button class="download-btn" onclick="showReceipt('${order.id}')">
+                            <i class="fas fa-download"></i> Receipt
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Load completed orders
+        async function loadCompletedOrders() {
+            try {
+                // Fetch package tracking data
+                const { data: trackingData, error: trackingError } = await supabase
+                    .from('package_tracking')
+                    .select('*')
+                    .eq('current_status', 'order_picked')
+                    .order('status_update_date', { ascending: false });
+                
+                if (trackingError) throw trackingError;
+                
+                // Fetch customer orders data
+                const { data: customerOrdersData, error: customerOrdersError } = await supabase
+                    .from('customer_orders')
+                    .select('*');
+                
+                if (customerOrdersError) throw customerOrdersError;
+                
+                // Combine the data
+                allCompletedOrders = trackingData.map(tracking => {
+                    // Find matching customer order
+                    const customerOrder = customerOrdersData.find(order => 
+                        order.id.toString() === tracking.reference_number || 
+                        order.reference_number === tracking.reference_number
+                    );
+                    
+                    return {
+                        ...tracking,
+                        // Add customer order details if found
+                        items: customerOrder ? customerOrder.items : [],
+                        total: customerOrder ? customerOrder.total : 0,
+                        order_date: customerOrder ? customerOrder.refer_date : tracking.created_at
+                    };
+                });
+                
+                renderOrdersTable(allCompletedOrders);
+                
+            } catch (error) {
+                console.error('Error loading completed orders:', error);
+                showToast('Error loading orders. Please try again.', true);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            const user = await checkAuth();
+            if (!user) return;
+            
+            document.getElementById('user-email').textContent = user.email;
+            
+            // Hide loading and show content
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            
+            // Load orders
+            loadCompletedOrders();
+            
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', function() {
+                filterOrders(this.value);
+            });
+            
+            // Logout handler
+            document.getElementById('logout-btn').addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = '/login.html';
+            });
+            
+            // Receipt download handlers
+            document.getElementById('download-pdf-btn').addEventListener('click', downloadReceiptAsPDF);
+            document.getElementById('download-image-btn').addEventListener('click', downloadReceiptAsImage);
+            document.getElementById('close-receipt-btn').addEventListener('click', closeReceipt);
+            document.getElementById('receipt-overlay').addEventListener('click', closeReceipt);
+        });
+        
+        // Make functions globally available for onclick handlers
+        window.showReceipt = showReceipt;
+    </script>
+</body>
+</html>
