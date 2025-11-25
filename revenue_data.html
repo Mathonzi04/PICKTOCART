@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revenue Analytics - Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #00356E;
+            --primary-light: #0059B3;
+            --secondary: #FF6B35;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --gray: #6c757d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-light);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: var(--gray);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .stat-breakdown {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .breakdown-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        /* Status badges */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pending {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Charts and Tables */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container, .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary);
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        /* Table Styles */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .positive {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .negative {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* Time Filters */
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 14px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            min-width: 150px;
+        }
+
+        .apply-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            align-self: flex-end;
+        }
+
+        .apply-btn:hover {
+            background: var(--primary-light);
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 25px;
+            margin-top: 40px;
+            border-radius: 12px;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .footer-copyright {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        /* New Styles for Charts and Download Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 968px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            height: 400px;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .chart-canvas {
+            height: 320px;
+            position: relative;
+        }
+        
+        .download-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .download-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .download-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        
+        .download-btn:hover {
+            background: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Revenue Analytics</h1>
+            <a href="dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Time Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Time Period</label>
+                <select class="filter-select" id="time-period">
+                    <option value="week">This Week</option>
+                    <option value="month" selected>This Month</option>
+                    <option value="last-month">Last Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                    <option value="custom">Custom Range</option>
+                </select>
+            </div>
+            
+            <div class="filter-group" id="custom-range-group" style="display: none;">
+                <label class="filter-label">Custom Range</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="date" class="filter-select" id="start-date">
+                    <input type="date" class="filter-select" id="end-date">
+                </div>
+            </div>
+            
+            <button class="apply-btn" id="apply-filters">
+                <i class="fas fa-filter"></i> Apply Filters
+            </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading" id="loading-spinner">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Revenue Overview -->
+        <div class="stats-grid" id="revenue-overview" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" id="total-revenue">R 0.00</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>Product Sales:</span>
+                        <span id="product-sales">R 0.00</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Tax (15%):</span>
+                        <span id="tax-amount">R 0.00</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Delivery Fees:</span>
+                        <span id="delivery-fees">R 0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Orders Status</div>
+                <div class="stat-value" id="total-orders">0</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>Completed:</span>
+                        <span id="completed-orders" class="positive">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Processing:</span>
+                        <span id="processing-orders" class="status-processing status-badge">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Pending:</span>
+                        <span id="pending-orders" class="status-pending status-badge">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Average Order:</span>
+                        <span id="average-order">R 0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Top Categories</div>
+                <div class="stat-value" id="top-category">-</div>
+                <div class="stat-breakdown" id="category-breakdown">
+                    <!-- Category data will be populated here -->
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Performance Metrics</div>
+                <div class="stat-value" id="performance-metric">-</div>
+                <div class="stat-breakdown">
+                    <div class="breakdown-item">
+                        <span>Completion Rate:</span>
+                        <span id="completion-rate">0%</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Avg Items/Order:</span>
+                        <span id="avg-items-order">0</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Items Sold:</span>
+                        <span id="total-items-sold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-section" id="charts-section" style="display: none;">
+            <div class="chart-card">
+                <h3 class="chart-title">Revenue Over Time</h3>
+                <div class="chart-canvas">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <h3 class="chart-title">Revenue by Category</h3>
+                <div class="chart-canvas">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Report Section -->
+        <div class="download-section" id="download-section" style="display: none;">
+            <h3 class="section-title">Download Reports</h3>
+            <p>Generate and download revenue reports in various formats.</p>
+            
+            <div class="download-options">
+                <button class="download-btn" id="download-weekly">
+                    <i class="fas fa-download"></i> Weekly Report
+                </button>
+                <button class="download-btn" id="download-monthly">
+                    <i class="fas fa-download"></i> Monthly Report
+                </button>
+                <button class="download-btn" id="download-quarterly">
+                    <i class="fas fa-download"></i> Quarterly Report
+                </button>
+                <button class="download-btn" id="download-custom">
+                    <i class="fas fa-download"></i> Custom Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Charts and Data -->
+        <div class="content-grid">
+            <div class="table-container">
+                <h3 class="section-title">Recent Orders</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="recent-orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-orders-body">
+                            <!-- Orders will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <h3 class="section-title">Top Products</h3>
+                <div class="table-wrapper">
+                    <table class="data-table" id="top-products-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-products-body">
+                            <!-- Products will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">TECHSpec Check</div>
+                <div class="footer-copyright">&copy; Copyright 2025 - All Rights Reserved</div>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+        
+        const supabaseUrl = 'https://wtiqgcsucpcqgyqutcmq.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0aXFnY3N1Y3BjcWd5cXV0Y21xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MzMzNDYsImV4cCI6MjA2MjAwOTM0Nn0.MtXBQ9qXTPwWEBh8l5jYh_zDYKkYyiUc2WwaA5wrtpE';
+        const supabase = createClient(supabaseUrl, supabaseKey, {
+            auth: {
+                storage: localStorage,
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: false,
+            },
+        });
+
+        // Chart instances
+        let revenueChart = null;
+        let categoryChart = null;
+
+        // Function to check user session 
+        const checkUserSession = async () => {
+            console.log("checkUserSession function executed");
+
+            try {
+                // Get user session
+                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                
+                if (authError) {
+                    console.error("Auth error:", authError);
+                    window.location.href = '/login.html';
+                    return null;
+                }
+                
+                if (!user) {
+                    console.log("No user found, redirecting to login");
+                    window.location.href = '/login.html';
+                    return null;
+                }
+
+                console.log('User ID:', user.id);
+                return user;
+                
+            } catch (error) {
+                console.error("Error in checkUserSession:", error);
+                window.location.href = '/login.html';
+                return null;
+            }
+        };
+
+        // Get date range based on filter
+        function getDateRange(period) {
+            const now = new Date();
+            let startDate, endDate;
+
+            switch (period) {
+                case 'week':
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - now.getDay());
+                    endDate = new Date(now);
+                    endDate.setDate(now.getDate() + (6 - now.getDay()));
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    break;
+                case 'last-month':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                    break;
+                case 'quarter':
+                    const quarter = Math.floor(now.getMonth() / 3);
+                    startDate = new Date(now.getFullYear(), quarter * 3, 1);
+                    endDate = new Date(now.getFullYear(), (quarter + 1) * 3, 0);
+                    break;
+                case 'year':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    endDate = new Date(now.getFullYear(), 11, 31);
+                    break;
+                case 'custom':
+                    const start = document.getElementById('start-date').value;
+                    const end = document.getElementById('end-date').value;
+                    startDate = start ? new Date(start) : new Date(now.getFullYear(), 0, 1);
+                    endDate = end ? new Date(end) : new Date();
+                    break;
+                default:
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            }
+
+            return {
+                start: startDate.toISOString().split('T')[0],
+                end: endDate.toISOString().split('T')[0]
+            };
+        }
+
+        // Determine order status based on package_tracking
+        function getOrderStatus(order, trackingData) {
+            const tracking = trackingData.find(t => t.reference_number === order.reference_number);
+            
+            if (!tracking) return 'pending';
+            
+            switch (tracking.current_status) {
+                case 'order_picked':
+                    return 'completed';
+                case 'on_delivery':
+                case 'ready_for_delivery':
+                case 'reached_destination':
+                    return 'processing';
+                case 'order_received':
+                default:
+                    return 'pending';
+            }
+        }
+
+        // Get status badge class
+        function getStatusBadgeClass(status) {
+            switch (status) {
+                case 'completed': return 'status-completed status-badge';
+                case 'processing': return 'status-processing status-badge';
+                case 'pending': return 'status-pending status-badge';
+                default: return 'status-pending status-badge';
+            }
+        }
+
+        // Function to create revenue chart
+        function createRevenueChart(dailyData) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+            
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dailyData.labels,
+                    datasets: [{
+                        label: 'Daily Revenue',
+                        data: dailyData.values,
+                        borderColor: '#00356E',
+                        backgroundColor: 'rgba(0, 53, 110, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Revenue Over Time'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R ' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to create category chart
+        function createCategoryChart(categoryData) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+            
+            // Generate colors for the pie chart
+            const backgroundColors = [
+                '#00356E', '#0059B3', '#FF6B35', '#28a745', '#ffc107',
+                '#dc3545', '#6f42c1', '#20c997', '#fd7e14', '#6c757d'
+            ];
+            
+            categoryChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: categoryData.labels,
+                    datasets: [{
+                        data: categoryData.values,
+                        backgroundColor: backgroundColors.slice(0, categoryData.labels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Revenue by Category'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to download report
+        function downloadReport(period) {
+            const dateRange = getDateRange(period);
+            const fileName = `Revenue_Report_${period}_${dateRange.start}_to_${dateRange.end}.csv`;
+            
+            // Get the data from the current view
+            const totalRevenue = document.getElementById('total-revenue').textContent;
+            const totalOrders = document.getElementById('total-orders').textContent;
+            const completedOrders = document.getElementById('completed-orders').textContent;
+            const processingOrders = document.getElementById('processing-orders').textContent;
+            const pendingOrders = document.getElementById('pending-orders').textContent;
+            const averageOrder = document.getElementById('average-order').textContent;
+            
+            // Create CSV content
+            let csvContent = "Revenue Report\n\n";
+            csvContent += `Period: ${period}\n`;
+            csvContent += `Date Range: ${dateRange.start} to ${dateRange.end}\n\n`;
+            csvContent += "Metric,Value\n";
+            csvContent += `Total Revenue,${totalRevenue}\n`;
+            csvContent += `Total Orders,${totalOrders}\n`;
+            csvContent += `Completed Orders,${completedOrders}\n`;
+            csvContent += `Processing Orders,${processingOrders}\n`;
+            csvContent += `Pending Orders,${pendingOrders}\n`;
+            csvContent += `Average Order Value,${averageOrder}\n`;
+            
+            // Create and download the file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Fetch revenue data
+        const fetchRevenueData = async (period = 'month') => {
+            try {
+                const dateRange = getDateRange(period);
+                
+                // Fetch orders for the selected period
+                const { data: orders, error: ordersError } = await supabase
+                    .from('customer_orders')
+                    .select('*')
+                    .gte('order_date', `${dateRange.start}T00:00:00`)
+                    .lte('order_date', `${dateRange.end}T23:59:59`)
+                    .order('order_date', { ascending: false });
+
+                if (ordersError) throw ordersError;
+
+                // Fetch tracking data to determine order status
+                const { data: trackingData, error: trackingError } = await supabase
+                    .from('package_tracking')
+                    .select('reference_number, current_status');
+
+                if (trackingError) throw trackingError;
+
+                // Calculate revenue metrics and order status counts
+                let totalRevenue = 0;
+                let productSales = 0;
+                let deliveryFees = 0;
+                let taxAmount = 0;
+                let completedOrders = 0;
+                let processingOrders = 0;
+                let pendingOrders = 0;
+                let totalItemsSold = 0;
+
+                const categoryRevenue = {};
+                const categoryRevenueData = {};
+                const productSalesData = {};
+                const ordersWithStatus = [];
+                const dailyRevenue = {};
+
+                orders.forEach(order => {
+                    // Determine order status
+                    const status = getOrderStatus(order, trackingData || []);
+                    ordersWithStatus.push({ ...order, status });
+
+                    // Update status counts
+                    if (status === 'completed') completedOrders++;
+                    else if (status === 'processing') processingOrders++;
+                    else pendingOrders++;
+
+                    // Calculate financial metrics
+                    totalRevenue += order.total || 0;
+                    productSales += order.subtotal || 0;
+                    deliveryFees += order.delivery_fee || 0;
+                    taxAmount += (order.subtotal || 0) * 0.15;
+                    
+                    // Count total items sold
+                    if (order.total_items) {
+                        totalItemsSold += order.total_items;
+                    }
+
+                    // Track daily revenue
+                    const orderDate = order.order_date.split('T')[0];
+                    dailyRevenue[orderDate] = (dailyRevenue[orderDate] || 0) + (order.total || 0);
+
+                    // FIXED: Process category data - use items array instead of category_data
+                    if (order.items && Array.isArray(order.items)) {
+                        order.items.forEach(item => {
+                            // Count items for category breakdown
+                            const category = item.category || 'Uncategorized';
+                            categoryRevenue[category] = (categoryRevenue[category] || 0) + (item.quantity || 1);
+                            
+                            // Track revenue by category
+                            const itemRevenue = (item.price || 0) * (item.quantity || 1);
+                            categoryRevenueData[category] = (categoryRevenueData[category] || 0) + itemRevenue;
+                            
+                            // Count product sales
+                            const productName = item.name || item.product_name || 'Unknown Product';
+                            const productKey = `${category}-${productName}`;
+                            
+                            if (!productSalesData[productKey]) {
+                                productSalesData[productKey] = {
+                                    name: productName,
+                                    category: category,
+                                    quantity: 0,
+                                    revenue: 0
+                                };
+                            }
+                            
+                            productSalesData[productKey].quantity += (item.quantity || 1);
+                            productSalesData[productKey].revenue += itemRevenue;
+                        });
+                    } else {
+                        // Fallback if no items array
+                        categoryRevenue['Uncategorized'] = (categoryRevenue['Uncategorized'] || 0) + 1;
+                        categoryRevenueData['Uncategorized'] = (categoryRevenueData['Uncategorized'] || 0) + (order.total || 0);
+                    }
+                });
+
+                // Update revenue overview
+                document.getElementById('total-revenue').textContent = `R ${totalRevenue.toFixed(2)}`;
+                document.getElementById('product-sales').textContent = `R ${productSales.toFixed(2)}`;
+                document.getElementById('tax-amount').textContent = `R ${taxAmount.toFixed(2)}`;
+                document.getElementById('delivery-fees').textContent = `R ${deliveryFees.toFixed(2)}`;
+
+                // Update order metrics
+                const totalOrders = orders.length;
+                document.getElementById('total-orders').textContent = totalOrders;
+                document.getElementById('completed-orders').textContent = completedOrders;
+                document.getElementById('processing-orders').textContent = processingOrders;
+                document.getElementById('pending-orders').textContent = pendingOrders;
+                document.getElementById('average-order').textContent = `R ${(totalRevenue / (totalOrders || 1)).toFixed(2)}`;
+
+                // Update performance metrics
+                const completionRate = totalOrders > 0 ? (completedOrders / totalOrders * 100).toFixed(1) : 0;
+                const avgItemsPerOrder = totalOrders > 0 ? (totalItemsSold / totalOrders).toFixed(1) : 0;
+                
+                document.getElementById('completion-rate').textContent = `${completionRate}%`;
+                document.getElementById('avg-items-order').textContent = avgItemsPerOrder;
+                document.getElementById('total-items-sold').textContent = totalItemsSold;
+                document.getElementById('performance-metric').textContent = `${completionRate}% Complete`;
+
+                // FIXED: Update category breakdown - show ITEM COUNT per category
+                const topCategory = Object.keys(categoryRevenue).length > 0 
+                    ? Object.keys(categoryRevenue).reduce((a, b) => 
+                        categoryRevenue[a] > categoryRevenue[b] ? a : b, 'N/A')
+                    : 'No data';
+                
+                document.getElementById('top-category').textContent = topCategory;
+
+                const categoryBreakdown = document.getElementById('category-breakdown');
+                categoryBreakdown.innerHTML = '';
+                
+                if (Object.keys(categoryRevenue).length > 0) {
+                    // Sort categories by item count
+                    const sortedCategories = Object.entries(categoryRevenue)
+                        .sort(([,a], [,b]) => b - a)
+                        .slice(0, 3); // Show top 3 categories
+                    
+                    sortedCategories.forEach(([category, itemCount]) => {
+                        const item = document.createElement('div');
+                        item.className = 'breakdown-item';
+                        item.innerHTML = `<span>${category}:</span><span>${itemCount} items</span>`;
+                        categoryBreakdown.appendChild(item);
+                    });
+                } else {
+                    categoryBreakdown.innerHTML = '<div class="breakdown-item"><span>No category data</span></div>';
+                }
+
+                // Update recent orders table
+                const recentOrdersBody = document.getElementById('recent-orders-body');
+                recentOrdersBody.innerHTML = '';
+                
+                if (ordersWithStatus.length > 0) {
+                    ordersWithStatus.slice(0, 5).forEach(order => {
+                        const row = document.createElement('tr');
+                        const statusClass = getStatusBadgeClass(order.status);
+                        row.innerHTML = `
+                            <td>${order.reference_number}</td>
+                            <td>${new Date(order.order_date).toLocaleDateString()}</td>
+                            <td>${order.customer_first_name} ${order.customer_last_name}</td>
+                            <td>R ${order.total.toFixed(2)}</td>
+                            <td><span class="${statusClass}">${order.status}</span></td>
+                        `;
+                        recentOrdersBody.appendChild(row);
+                    });
+                } else {
+                    recentOrdersBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: var(--gray);">
+                                No orders found for selected period
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                // FIXED: Update top products table
+                const topProductsBody = document.getElementById('top-products-body');
+                topProductsBody.innerHTML = '';
+                
+                const sortedProducts = Object.values(productSalesData)
+                    .sort((a, b) => b.quantity - a.quantity) // Sort by quantity sold
+                    .slice(0, 5);
+                
+                if (sortedProducts.length > 0) {
+                    sortedProducts.forEach(product => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${product.name}</td>
+                            <td>${product.category}</td>
+                            <td>${product.quantity}</td>
+                            <td>R ${product.revenue.toFixed(2)}</td>
+                        `;
+                        topProductsBody.appendChild(row);
+                    });
+                } else {
+                    topProductsBody.innerHTML = `
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--gray);">
+                                No product sales data available
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                // Prepare data for charts
+                // Daily revenue chart
+                const sortedDates = Object.keys(dailyRevenue).sort();
+                const dailyLabels = sortedDates.map(date => {
+                    const d = new Date(date);
+                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+                const dailyValues = sortedDates.map(date => dailyRevenue[date]);
+                
+                // Category revenue chart - use revenue data
+                const categoryLabels = Object.keys(categoryRevenueData);
+                const categoryValues = Object.values(categoryRevenueData);
+
+                // Create charts
+                createRevenueChart({
+                    labels: dailyLabels,
+                    values: dailyValues
+                });
+                
+                createCategoryChart({
+                    labels: categoryLabels,
+                    values: categoryValues
+                });
+
+                // Hide loading spinner and show data
+                document.getElementById("loading-spinner").style.display = "none";
+                document.getElementById("revenue-overview").style.display = "grid";
+                document.getElementById("charts-section").style.display = "grid";
+                document.getElementById("download-section").style.display = "block";
+
+            } catch (error) {
+                console.error("Error fetching revenue data:", error);
+                document.getElementById("loading-spinner").style.display = "none";
+                document.getElementById("revenue-overview").style.display = "grid";
+                document.getElementById("charts-section").style.display = "grid";
+                document.getElementById("download-section").style.display = "block";
+                
+                // Show error in category breakdown
+                const categoryBreakdown = document.getElementById('category-breakdown');
+                categoryBreakdown.innerHTML = '<div class="breakdown-item"><span>Error loading data</span></div>';
+                
+                // Show error in products table
+                const topProductsBody = document.getElementById('top-products-body');
+                topProductsBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--danger);">
+                            Error loading product data
+                        </td>
+                    </tr>
+                `;
+            }
+        };
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check user session first
+            const user = await checkUserSession();
+            if (!user) {
+                return; // Redirect already happened in checkUserSession
+            }
+
+            // Set up filter event listeners
+            document.getElementById('time-period').addEventListener('change', function() {
+                const isCustom = this.value === 'custom';
+                document.getElementById('custom-range-group').style.display = isCustom ? 'block' : 'none';
+            });
+
+            document.getElementById('apply-filters').addEventListener('click', function() {
+                const period = document.getElementById('time-period').value;
+                document.getElementById("loading-spinner").style.display = "flex";
+                document.getElementById("revenue-overview").style.display = "none";
+                document.getElementById("charts-section").style.display = "none";
+                document.getElementById("download-section").style.display = "none";
+                fetchRevenueData(period);
+            });
+
+            // Set up download buttons
+            document.getElementById('download-weekly').addEventListener('click', () => downloadReport('week'));
+            document.getElementById('download-monthly').addEventListener('click', () => downloadReport('month'));
+            document.getElementById('download-quarterly').addEventListener('click', () => downloadReport('quarter'));
+            document.getElementById('download-custom').addEventListener('click', () => {
+                const period = document.getElementById('time-period').value;
+                downloadReport(period);
+            });
+
+            // Set default dates for custom range
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            document.getElementById('start-date').value = firstDay.toISOString().split('T')[0];
+            document.getElementById('end-date').value = today.toISOString().split('T')[0];
+
+            // Load initial data
+            fetchRevenueData('month');
+
+            // Set session timeout for 1 hour (same as dashboard)
+            setTimeout(async () => {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error("Error signing out:", error.message);
+                } else {
+                    window.location.href = '/login.html';
+                }
+            }, 3600000); // 1 hour in milliseconds
+        });
+    </script>
+</body>
+</html>
